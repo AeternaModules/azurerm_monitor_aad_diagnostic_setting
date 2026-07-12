@@ -21,22 +21,14 @@ EOT
     eventhub_name                  = optional(string)
     log_analytics_workspace_id     = optional(string)
     storage_account_id             = optional(string)
-    enabled_log = optional(object({
+    enabled_log = optional(list(object({
       category = string
       retention_policy = optional(object({
         days    = optional(number) # Default: 0
         enabled = optional(bool)   # Default: false
       }))
-    }))
+    })))
   }))
-  validation {
-    condition = alltrue([
-      for k, v in var.monitor_aad_diagnostic_settings : (
-        v.eventhub_name == null || (can(regex("^[a-zA-Z0-9]([-._a-zA-Z0-9]{0,48}[a-zA-Z0-9])?$", v.eventhub_name)))
-      )
-    ])
-    error_message = "The event hub name can contain only letters, numbers, periods (.), hyphens (-),and underscores (_), up to 50 characters, and it must begin and end with a letter or number."
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_monitor_aad_diagnostic_setting's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
@@ -45,6 +37,9 @@ EOT
   #   source:    [from validate.MonitorDiagnosticSettingName] regexp.MustCompile(`[<>*%&:\\?+\/]+`).MatchString(value)
   # path: name
   #   source:    [from validate.MonitorDiagnosticSettingName] len(value) < 1 || len(value) > 260
+  # path: eventhub_name
+  #   condition: can(regex("^[a-zA-Z0-9]([-._a-zA-Z0-9]{0,48}[a-zA-Z0-9])?$", value))
+  #   message:   The event hub name can contain only letters, numbers, periods (.), hyphens (-),and underscores (_), up to 50 characters, and it must begin and end with a letter or number.
   # path: eventhub_authorization_rule_id
   #   source:    [from authRuleParse.ValidateAuthorizationRuleID] !ok
   # path: eventhub_authorization_rule_id
