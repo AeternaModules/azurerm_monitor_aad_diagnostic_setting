@@ -24,8 +24,8 @@ EOT
     enabled_log = optional(list(object({
       category = string
       retention_policy = optional(object({
-        days    = optional(number) # Default: 0
-        enabled = optional(bool)   # Default: false
+        days    = optional(number)
+        enabled = optional(bool)
       }))
     })))
   }))
