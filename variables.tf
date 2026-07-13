@@ -29,31 +29,14 @@ EOT
       }))
     })))
   }))
-  # --- Unconfirmed validation candidates, derived from azurerm_monitor_aad_diagnostic_setting's provider source ---
-  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
-  # or a path that crosses a list-typed block (needs its own for_each wrapping).
-  # Review, translate into a real validation{} block above, and delete once confirmed.
-  # path: name
-  #   source:    [from validate.MonitorDiagnosticSettingName] regexp.MustCompile(`[<>*%&:\\?+\/]+`).MatchString(value)
-  # path: name
-  #   source:    [from validate.MonitorDiagnosticSettingName] len(value) < 1 || len(value) > 260
-  # path: eventhub_name
-  #   condition: can(regex("^[a-zA-Z0-9]([-._a-zA-Z0-9]{0,48}[a-zA-Z0-9])?$", value))
-  #   message:   The event hub name can contain only letters, numbers, periods (.), hyphens (-),and underscores (_), up to 50 characters, and it must begin and end with a letter or number.
-  # path: eventhub_authorization_rule_id
-  #   source:    [from authRuleParse.ValidateAuthorizationRuleID] !ok
-  # path: eventhub_authorization_rule_id
-  #   source:    [from authRuleParse.ValidateAuthorizationRuleID] err != nil
-  # path: log_analytics_workspace_id
-  #   source:    [from workspaces.ValidateWorkspaceID] !ok
-  # path: log_analytics_workspace_id
-  #   source:    [from workspaces.ValidateWorkspaceID] err != nil
-  # path: storage_account_id
-  #   source:    [from commonids.ValidateStorageAccountID] !ok
-  # path: storage_account_id
-  #   source:    [from commonids.ValidateStorageAccountID] err != nil
-  # path: days
-  #   condition: value >= 0
-  #   message:   must be at least 0
+  validation {
+    condition = alltrue([
+      for k, v in var.monitor_aad_diagnostic_settings : (
+        v.eventhub_name == null || (can(regex("^[a-zA-Z0-9]([-._a-zA-Z0-9]{0,48}[a-zA-Z0-9])?$", v.eventhub_name)))
+      )
+    ])
+    error_message = "The event hub name can contain only letters, numbers, periods (.), hyphens (-),and underscores (_), up to 50 characters, and it must begin and end with a letter or number."
+  }
+  # Note: 9 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
