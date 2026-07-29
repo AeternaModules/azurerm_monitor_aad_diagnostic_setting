@@ -11,13 +11,6 @@ resource "azurerm_monitor_aad_diagnostic_setting" "monitor_aad_diagnostic_settin
     for_each = each.value.enabled_log != null ? each.value.enabled_log : []
     content {
       category = enabled_log.value.category
-      dynamic "retention_policy" {
-        for_each = enabled_log.value.retention_policy != null ? [enabled_log.value.retention_policy] : []
-        content {
-          days    = retention_policy.value.days
-          enabled = retention_policy.value.enabled
-        }
-      }
     }
   }
 }

@@ -10,9 +10,6 @@ Optional:
     - storage_account_id
     - enabled_log (block):
         - category (required)
-        - retention_policy (optional, block):
-            - days (optional)
-            - enabled (optional)
 EOT
 
   type = map(object({
@@ -23,10 +20,6 @@ EOT
     storage_account_id             = optional(string)
     enabled_log = optional(list(object({
       category = string
-      retention_policy = optional(object({
-        days    = optional(number)
-        enabled = optional(bool)
-      }))
     })))
   }))
   validation {
